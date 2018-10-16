@@ -3,21 +3,25 @@
 # Sn = a * Sp + b
 # a = (max - min) / (maxp - minp)
 # b = max - a * maxp
-
 normalize_ratings <- function(df) {
-  
+  # Only normalize these columns
   to_normalize <- c("interest", "complexity", "comprehension")
+  
   personIDs <- levels(df$personID)
   global.max <- 7
   global.min <- 1
   
   normalized <- data.frame()
+  
   for(pid in personIDs) {
+    # Extract this persons ratings
     person_ratings <- df[df$personID == pid,]
+    
+    # Calculate min and max for the persons ratings for all columns
     person.max <- max(person_ratings[, to_normalize])
     person.min <- min(person_ratings[, to_normalize])
+    
     for(column in to_normalize) {
-      
       a <- (global.max - global.min) / (person.max - person.min)
       b <- global.max - a*person.max
       
