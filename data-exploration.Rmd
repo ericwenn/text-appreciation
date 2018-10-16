@@ -25,5 +25,9 @@ See if we can produce a linear model between these variables
 ```{r}
 linearMod <- lm(interest ~ complexity + comprehension, data = ratings)
 summary(linearMod)
+grid <- data.frame(expand.grid(complexity=seq(1,7, length.out=20), comprehension=seq(1,7, length.out=20)))
+grid$interest <- predict(linearMod, grid)
+
+ggplot(grid) + geom_point(aes(x = comprehension, y = complexity, color = interest))
 ```
 
