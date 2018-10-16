@@ -4,7 +4,7 @@ library(ggplot2)
 ```
 
 ```{r}
-ratings <- load_ratings()
+ratings <- normalize_ratings(load_ratings())
 ```
 
 ```{r}
@@ -13,10 +13,6 @@ boxplot(ratings[c("interest", "comprehension", "complexity")])
 
 ```{r}
 ggplot(data=ratings) + geom_point(aes(x = comprehension, y = complexity, color = interest))
-
-ggplot(ratings, aes(x = interest)) + geom_histogram() + facet_wrap(vars(personID))
-ggplot(data=ratings) + geom_histogram(aes(x = complexity))
-ggplot(data=ratings) + geom_histogram(aes(x = comprehension))
 ```
 
 
