@@ -40,29 +40,41 @@ for i in range(1,37):
                 # interpolate if necessary
                 for k in range (0,len(gap_size)):
                     the_file.write(lines[k+1])
+                    #get the 2 lines where between them we will intepolate
                     x = re.split(',', lines[k+1])
                     x2 = re.split(',', lines[k + 2])
+                    #check the size of the gab
                     if (gap_size[k]<7*sampling_period)and(gap_size[k]>(2*sampling_period)):
+                        #calculate how many extra samples/lines
                         extra_lines=int(gap_size[k]/sampling_period)
+                        #get l_por_x, l_por_y from line1
                         lx=float(x[19])
                         ly=float(x[20])
+                        # get l_por_x, l_por_y from line2
                         lx2=float(x2[19])
                         ly2=float(x2[20])
+                        #calculate distance bettween the 2 points
                         distance=math.sqrt(((lx-lx2)**2)+((ly-ly2)**2))
+                        #calculate the distamce between interpolations
                         dist_btw_inter=distance/(extra_lines+1)
                         for z in range(0,extra_lines):
-                            new_lx = lx + dist_btw_inter*(z+1)
-                            new_ly = ly + dist_btw_inter*(z+1)
+                            # calculate new l_por_x, l_por_y  which identical to r_por_x, r_por_y
+
+                            new_lx = float("{0:.4f}".format(lx + dist_btw_inter*(z+1)))
+                            new_ly =  float("{0:.4f}".format(ly + dist_btw_inter*(z+1)))
+                            #replace l_por_x, l_por_y and r_por_x, r_por_y with the new ones
                             x[19]=str(new_lx)
                             x[20]=str(new_ly)
                             x[21] = str(new_lx)
                             x[22] = str(new_ly)
-                        new_line=""
-                        for z in range(0,len(x)-1):
-                            new_line=new_line+str(x[z])+","
-                        new_line=new_line+x[len(x)-1]
-                        the_file.write(new_line)
-                        print(extra_lines)
-                        print(distance)
-                        print(distance/(extra_lines+1))
-                        exit()
+                            #recreate the new liine
+                            new_line = str(int(x[0]) + sampling_period*(z+1)) + ","
+                            for h in range(1, len(x) - 1):
+                                new_line = new_line + str(x[h]) + ","
+                            new_line = new_line + x[len(x) - 1]
+                            #write the line
+                            the_file.write(new_line)
+
+                        #print(extra_lines)
+                        #print(distance)
+                        #print(distance/(extra_lines+1))
