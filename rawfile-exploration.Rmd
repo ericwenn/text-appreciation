@@ -1,0 +1,180 @@
+---
+title: "rawfile-exploration"
+output: html_document
+---
+```{r}
+library(ggplot2)
+```
+
+```{r}
+load_files <- function(n = NULL, pattern = NULL) {
+  files <- dir("data/raw", pattern)
+  
+  if(is.numeric(n)) {
+    files <- files[1:n]
+  }
+  
+  files <- lapply(files, function(name) {
+    df <- read.csv(paste("data/raw", name, sep = "/"))
+    # extract subjectid and textid from filename
+    p <- str_match(name, "P([0-9]*)_([0-9]*)")
+    pid <- p[[2]]
+    tid <- p[[3]]
+    
+    df2 <- data.frame(
+      time = df$Time,
+      x = df$L.POR.X..px.,
+      y = df$L.POR.Y..px.,
+      pid = replicate(nrow(df), pid),
+      tid = replicate(nrow(df), tid)
+    )
+    return(df2)
+  })
+  return(files)
+  
+}
+files <- load_files(pattern="P.*_322")
+
+```
+
+```{r}
+remove_outliers <- function(dflist) {
+  filtered <- list()
+  for(i in 1:length(dflist)) {
+    file <- dflist[[i]]
+    filt <- file$x > 1 & file$y > 1
+    file <- file[filt,]
+    
+    t <- boxplot.stats(file$y)$stats
+    below <- file$y < t[1]
+    above <- file$y > t[5]
+    file <- file[!(above | below), ]
+    
+    # dont keep files that has a majority of outliers
+    if ((nrow(file) / nrow(dflist[[i]])) > 0.5) {
+      filtered[[length(filtered) + 1]] <- file
+    }
+  }
+  
+  return(filtered)
+}
+
+files.no <- remove_outliers(files)
+boxplot.stats(files.no[[1]]$y[1000:2000])
+```
+
+```{r}
+filter_signals <- function(dflist) {
+  filtered <- list()
+  for(i in 1:length(dflist)) {
+    file <- dflist[[i]]
+    print(ggplot(file) + geom_path(aes(x = time, y = y)))
+    nlow <- length(file$x[file$x < 10])
+    lowperc <- nlow/nrow(file)
+    delta <- file$x[1:(nrow(file) - 1)] - file$x[2:nrow(file)]
+    deltav <- var(delta)
+    print(deltav)
+    
+    if (!(lowperc < 0.08 && deltav < 7000)) {
+      filtered[[length(filtered)+1]] <- file
+    }
+  }
+  return(filtered)
+}
+files.filtered <- filter_signals(files.no)
+#files.combined <- do.call("rbind", files.filtered)
+```
+
+
+```{r}
+smooth_files <- function(dflist, n = 5) {
+  smoothed <- list()
+  for(i in 1:length(dflist)) {
+    file <- dflist[[i]]
+    file$y <- filter(file$y, filter = rep(1/n, n), sides=1)
+    file$x <- filter(file$x, filter = rep(1/n, n), sides=1)
+    smoothed[[length(smoothed) + 1]] <- file[n:nrow(file),]
+  }
+  
+  return(smoothed)
+}
+
+files.smoothed <- smooth_files(files.no)
+```
+
+
+```{r}
+interpolate_files <- function(dflist) {
+  interpolated <- list()
+  for(i in 1:length(dflist)) {
+    file <- dflist[[i]]
+    deltas <- filter(file$time, filter=c(1,-1), sides=1)
+    # first delta is always null
+    deltas <- deltas[2:length(deltas)]
+    # approximate period
+    period <- median(deltas)
+  
+    interpolations <- data.frame()
+    for(i in 1:(nrow(file)-1)) {
+      d <- file[i+1,]$time - file[i,]$time
+      
+      # interpolate values if number of missing samples
+      # is less than 75ms (less than a blink)
+      # and more than 32ms (at least one sample missing).
+      if (d > 32000 && d < 75000) {
+        samples.missing <- round(d/period) - 1
+        df <- file[i:(i+1),]
+        j <- data.frame(lapply(df[,c('time', 'x', 'y')], function(column) {
+          inter <- approx(df$time, column, n = samples.missing + 2)$y
+          return(inter[1:samples.missing+1])
+        }))
+        j$pid <- rep(file$pid[1], samples.missing)
+        j$tid <- rep(file$tid[1], samples.missing)
+        interpolations <- rbind(interpolations, j)
+      }
+    }
+    df <- rbind(file, interpolations)
+    df <- df[order(df$time), ]
+    
+    interpolated[[length(interpolated) + 1]] <- df
+  }
+  return(interpolated)
+}
+
+files.interpolated <- interpolate_files(files.smoothed)
+```
+
+```{r}
+for(i in 1:length(files.interpolated)) {
+  g <- ggplot(files.interpolated[[i]], aes(x=x, y = y, color = time)) + geom_path()
+  print(g)
+}
+```
+
+```{r}
+library(emov)
+```
+
+```{r}
+to_fixations <- function(dflist) {
+  fixations <- list()
+  for(i in 1:length(dflist)) {
+    file <- dflist[[i]]
+    fixations[[i]] <- emov.idt(file$time, file$x, file$y, 100, 6)
+  }
+  return(fixations)
+}
+
+files.fixations <- to_fixations(files.interpolated)
+```
+
+
+```{r}
+for(i in 1:length(files.fixations)) {
+  g <- ggplot(files.fixations[[i]], aes(x = x, y = y)) + 
+    geom_path(color = 'darkred') +
+    geom_point(size = 2)
+  print(g)
+}
+```
+

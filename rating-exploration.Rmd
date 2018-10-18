@@ -4,21 +4,27 @@ library(ggplot2)
 ```
 
 ```{r}
-ratings <- normalize_ratings(load_ratings())
+ratings.unnorm <- load_ratings()
+ratings <- normalize_ratings(ratings.unnorm)
 ```
 
 ```{r}
 boxplot(ratings[c("interest", "comprehension", "complexity")])
+boxplot(ratings.unnorm[c("interest", "comprehension", "complexity")])
 ```
 
 ```{r}
-ggplot(data=ratings) + geom_point(aes(x = comprehension, y = complexity, color = interest))
+
+ggplot(data=ratings, aes(x = comprehension, y = complexity, color = interest)) + geom_point()
+
+
+ggplot(data=ratings.unnorm, aes(x = comprehension, y = complexity, color = interest)) + geom_point()
 ```
 
 
 Look at correlation between familiarity, complexity, and comprehension to interest.
 ```{r}
-cor(ratings[, c("familiarity", "complexity", "comprehension")], ratings$interest)
+cor(ratings[, c("complexity", "comprehension", "interest")])
 ```
 
 See if we can produce a linear model between these variables
