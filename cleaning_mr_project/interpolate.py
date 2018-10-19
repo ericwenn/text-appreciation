@@ -54,14 +54,18 @@ for i in range(1,37):
                         lx2=float(x2[19])
                         ly2=float(x2[20])
                         #calculate distance bettween the 2 points
-                        distance=math.sqrt(((lx-lx2)**2)+((ly-ly2)**2))
+                        #distance=math.sqrt(((lx-lx2)**2)+((ly-ly2)**2))
+                        dist_x=lx-lx2
+                        dist_y=ly-ly2
                         #calculate the distamce between interpolations
-                        dist_btw_inter=distance/(extra_lines+1)
+                        #dist_btw_inter=distance/(extra_lines+1)
+                        dist_btw_inter_x = dist_x / (extra_lines + 1)
+                        dist_btw_inter_y = dist_y / (extra_lines + 1)
                         for z in range(0,extra_lines):
                             # calculate new l_por_x, l_por_y  which identical to r_por_x, r_por_y
 
-                            new_lx = float("{0:.4f}".format(lx + dist_btw_inter*(z+1)))
-                            new_ly =  float("{0:.4f}".format(ly + dist_btw_inter*(z+1)))
+                            new_lx = float("{0:.4f}".format(lx + dist_btw_inter_x*(z+1)))
+                            new_ly =  float("{0:.4f}".format(ly + dist_btw_inter_y*(z+1)))
                             #replace l_por_x, l_por_y and r_por_x, r_por_y with the new ones
                             x[19]=str(new_lx)
                             x[20]=str(new_ly)
