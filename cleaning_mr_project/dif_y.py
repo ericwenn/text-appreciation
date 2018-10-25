@@ -35,7 +35,7 @@ for i in range(1,37):
                 # get l_por_x, l_por_y from line2
                 lx2 = float(x2[19])
                 ly2 = float(x2[20])
-                print(str(ly)+"-"+str(ly2))
+                print(str(ly)+"/"+str(ly2))
                 #this should be sqr(Σ((X1-X2)/(Y1-Y2))^2)??
                 result=result+(((lx-lx2)**2)/((ly-ly2)**2))
                 count+=1

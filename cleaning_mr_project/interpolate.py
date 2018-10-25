@@ -44,7 +44,7 @@ for i in range(1,37):
                     x = re.split(',', lines[k+1])
                     x2 = re.split(',', lines[k + 2])
                     #check the size of the gab
-                    if (gap_size[k]<7*sampling_period)and(gap_size[k]>(2*sampling_period)):
+                    if (gap_size[k]<(75000))and(gap_size[k]>(2*sampling_period)):
                         #calculate how many extra samples/lines
                         extra_lines=int(gap_size[k]/sampling_period)
                         #get l_por_x, l_por_y from line1
