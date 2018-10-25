@@ -9,7 +9,6 @@ aggregate <- function(df) {
   fixations <- emov.idt(df$time, df$x, df$y, dispersion(df), sample_size(df))
   pupils <- c()
   for (i in 1:(nrow(fixations))) {
-    print(i)
     fixation <- fixations[i,]
     samples <- df[df$time <= fixation$end & df$time >= fixation$start,]
     pupils <- c(pupils, mean(samples$pupil))
