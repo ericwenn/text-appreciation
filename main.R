@@ -29,7 +29,6 @@ read_formatted_file <- function(path, headerMap) {
      path <- paste(rawDir, file, sep = '/')
      df <- read_formatted_file(path, headerMap)
      d <- aggregate(df)
-     print(d)
      fixations <- d$fixations
      saccades <- d$saccades
      
