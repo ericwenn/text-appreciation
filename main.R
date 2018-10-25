@@ -41,14 +41,16 @@ read_formatted_file <- function(path, headerMap) {
    }
  }
  
- aggregate_files(
-  "data/raw",
-  "data/aggregated",
-  headerMap = list(
-    time="Time", 
-    x="L.POR.X..px.", 
-    y="L.POR.Y..px.",
-    pupilx="L.Dia.X..px.",
-    pupily="L.Dia.Y..px."
+ do_aggregation <- function() {
+   aggregate_files(
+    "data/raw",
+    "data/aggregated",
+    headerMap = list(
+      time="Time", 
+      x="L.POR.X..px.", 
+      y="L.POR.Y..px.",
+      pupilx="L.Dia.X..px.",
+      pupily="L.Dia.Y..px."
+    )
   )
-)
+ }
