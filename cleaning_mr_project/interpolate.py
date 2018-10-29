@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 import math
-folder_name="eye-tracking_data/"
+folder_name="data_after_fixation_map/"
 doc_id=["322","2725","3775","3819","4094","4504","4584","4701","5938","6046","6366","6474","7784","9977","10879","11143","11299","13165"]
 mean_rate_dict={}
 sampling_period=16666
