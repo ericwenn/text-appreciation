@@ -18,10 +18,10 @@ normalize_ratings <- function(df) {
     person_ratings <- df[df$personID == pid,]
     
     # Calculate min and max for the persons ratings for all columns
-    person.max <- max(person_ratings[, to_normalize])
-    person.min <- min(person_ratings[, to_normalize])
     
     for(column in to_normalize) {
+      person.max <- max(person_ratings[, column])
+      person.min <- min(person_ratings[, column])
       a <- (global.max - global.min) / (person.max - person.min)
       b <- global.max - a*person.max
       
