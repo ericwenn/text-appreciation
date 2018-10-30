@@ -1,5 +1,4 @@
 source("aggregation.R")
-source("cleaning.R")
 source("feature_extraction.R")
 source("rating_normalization.R")
 
@@ -43,7 +42,7 @@ read_formatted_file <- function(path, headerMap) {
  
  do_aggregation <- function() {
    aggregate_files(
-    "data/raw",
+     "cleaning_mr_project/eye-tracking_data_interpolated",
     "data/aggregated",
     headerMap = list(
       time="Time", 

@@ -1,2 +1,0 @@
-"start","end","duration","startx","starty","endx","endy"
-17271232551,17276332271,5099720,-2,-91,-2,-91

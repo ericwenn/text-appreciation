@@ -1,4 +1,5 @@
 library(moments)
+library(stringr)
 
 extract_features <- function(fixations, saccades) {
   parameter.vector <- list()
@@ -83,7 +84,25 @@ ydist_saccade <- function(saccades) {
 }
 
 
-
+do_feature_extr <- function() {
+  fixations <- dir('data/aggregated', pattern='fixations.*')
+  saccades <- dir('data/aggregated', pattern='saccades.*')
+  
+  features <- data.frame()
+  for(i in 1:length(fixations)) {
+    fix <- read.csv(paste("data/aggregated/", fixations[i], sep='/'))
+    sac <- read.csv(paste("data/aggregated/", saccades[i], sep='/'))
+    feat <- extract_features(fix, sac)
+    
+    p <- str_match(fixations[i], "fixations.P([0-9]*)_([0-9]*)")
+    pid <- p[[2]]
+    tid <- p[[3]]
+    feat$pid <- as.numeric(pid)
+    feat$tid <- as.numeric(tid)
+    features <- rbind(features, feat)
+  }
+  write.csv(features, row.names = F, file = 'data/features.csv')
+}
 #fix <- read.csv("data/aggregated/fixations.P01_10879.txt")
 #sac <- read.csv("data/aggregated/saccades.P01_10879.txt")
 #res <- extract_features(fix, sac)
