@@ -44,7 +44,11 @@ extract_features <- function(fixations, saccades) {
   
   RRS <- nrow(regressive_saccades(saccades)) / nrow(saccades)
   
-  YDIST <- ydist_saccade(saccades) 
+  YDIST <- ydist_saccade(saccades)
+  
+  RT.YDIST <- RT / YDIST
+  FD.SD <- mean(FD) / mean(SD)
+  RT.NF <- RT / NF
   
   data.frame(
     RT, 
@@ -57,7 +61,10 @@ extract_features <- function(fixations, saccades) {
     SD.mean, SD.sd, SD.skw,
     SV.mean, SV.sd, SV.skw,
     RRS,
-    YDIST
+    YDIST,
+    RT.YDIST,
+    FD.SD,
+    RT.NF
   )
 }
 

@@ -1,5 +1,6 @@
 library(ggplot2)
 library(randomForest)
+source('x-val.R')
 
 set.seed(1)
 # load feature and ratings
@@ -27,32 +28,53 @@ combined <- data.frame(features, rating = ratings$interest)
 
 # Split the data into training and test set
 train.index <- sample(1:nrow(combined), 300)
-#features.train <- features[train.index,]
-#features.test <- features[-train.index,]
+features.train <- features[train.index,]
+features.test <- features[-train.index,]
 
-#ratings.train <- ratings[train.index,]
-#ratings.test <- ratings[-train.index,]
-oob <- double(10)
-test.err <- double(10)
+ratings.train <- ratings[train.index,]
+ratings.test <- ratings[-train.index,]
 
-for(mtry in 1:10) {
-  model <- randomForest(
-    rating ~ .,
-    data = combined,
-    subset = train.index,
-    ntree=500,
-    mtry=mtry,
-    nodesize=1
-  )
-  
-  oob[mtry] <- model$mse[500]
-  
-  predicted <- predict(model, combined[-train.index, ])
-  test.err[mtry]= with(combined[-train.index,], mean( (rating - predicted)^2)) #Mean Squared Test Error
-  
+
+train.rf <- function(features, labels, parameters) {
+  model <- randomForest(rating ~ ., data = data.frame(features, rating = labels), mtry=parameters$mtry, nodesize=parameters$nodesize, ntree = 500)
+  return(model)
 }
-# Train regressive random forest model
+predict.rf <- function(model, features, parameters) {
+  predict(model, data.frame(features))
+}
 
+tune.rf <- function(parameters) {
+  find_hyperparameters(
+    features.train, ratings.train$comprehension, 
+    train.rf, predict.rf, adjusted_r2,
+    parameters
+  )
+}
 
-print(model)
+r2 <- function(actual, predicted) {
+  # implementation from https://en.wikipedia.org/wiki/Coefficient_of_determination
+  yhat <- mean(actual)
+  ss.tot <- sum((actual - yhat) ** 2)
+  ss.res <- sum((actual - predicted) ** 2)
+  return(1 - (ss.res / ss.tot))
+}
 
+adjusted_r2 <- function(actual, predicted, p=ncol(features), n = length(train.index)) {
+  r <- r2(actual, predicted)
+  return(1 - (1 - r)*(n-1)/(n-p-1))
+}
+
+mse <- function(actual, predicted) {
+  return(mean((actual - predicted)**2))
+}
+
+# interest 9/6
+# complexity 9/2
+# comprehension 12/4
+
+model <- randomForest(
+  rating ~ ., 
+  data = data.frame(features.train, rating = ratings.train$interest), 
+  mtry=12, nodesize=4, ntree = 500
+)
+predicted <- predict(model, data.frame(features.test))
