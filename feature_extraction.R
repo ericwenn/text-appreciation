@@ -35,6 +35,11 @@ extract_features <- function(fixations, saccades) {
   SD.sd <- sd(SD)
   SD.skw <- skewness(SD)
   
+  SV <- saccade_velocity(saccades)
+  SV.mean <- mean(SV)
+  SV.sd <- sd(SV)
+  SV.skw <- skewness(SV)
+  
   DR <- mean(fixations$dur) / mean(saccades$dur)
   
   RRS <- nrow(regressive_saccades(saccades)) / nrow(saccades)
@@ -50,6 +55,7 @@ extract_features <- function(fixations, saccades) {
     DR,
     FPS.mean, FPS.sd, FPS.skw,
     SD.mean, SD.sd, SD.skw,
+    SV.mean, SV.sd, SV.skw,
     RRS,
     YDIST
   )
@@ -60,7 +66,7 @@ reading_time <- function(fixations) {
   return(fixations[nrow(fixations),"end"] - fixations[1,"start"])
 }
 
-fixation_spacing <- function(saccades) {
+fixation_spacing <- function(saccades) { #here..more or less i didnt undr the reasoning...not that is incorrect
   spacing.y <- saccades$endy - saccades$starty
   spacing.x <- saccades$endx - saccades$startx
   filt <- (spacing.x) > 0 & abs(spacing.y) < 20
@@ -70,7 +76,7 @@ fixation_spacing <- function(saccades) {
   return(lengths)
 }
 
-regressive_saccades <- function(saccades) {
+regressive_saccades <- function(saccades) {#here why -20? isnt the axis origin of the screen at left bottom ?
   spacing.y <- saccades$endy - saccades$starty
   spacing.x <- saccades$endx - saccades$startx
   filt <- spacing.y < -20 | (abs(spacing.y) < 10 & spacing.x < 0)
@@ -84,10 +90,20 @@ regressive_saccades <- function(saccades) {
 }
 
 ydist_saccade <- function(saccades) {
-  spacing.y <- saccades$endy - saccades$startx
+  spacing.y <- saccades$endy - saccades$starty
   return(sum(abs(spacing.y)))
 }
 
+saccade_velocity <- function(saccades) {
+  velo <- c()
+  for(i in 1:nrow(saccades)) {
+    s <- saccades[i,]
+    dist <- sqrt((s$startx - s$endx) ** 2 + (s$starty - s$endy) ** 2)
+    v <- dist / s$dur
+    velo <- c(velo, v)
+  }
+  return(velo)
+}
 
 do_feature_extr <- function() {
   fixations <- dir('data/aggregated', pattern='fixations.*')
