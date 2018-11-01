@@ -44,9 +44,9 @@ for i in range(1,37):
                     x = re.split(',', lines[k+1])
                     x2 = re.split(',', lines[k + 2])
                     #check the size of the gab
-                    if (gap_size[k]<(75000))and(gap_size[k]>(2*sampling_period)):
+                    if (gap_size[k]<(75000))and(gap_size[k]>(1.75*sampling_period)):
                         #calculate how many extra samples/lines
-                        extra_lines=int(gap_size[k]/sampling_period)
+                        extra_lines=math.ceil(gap_size[k]/sampling_period)-1
                         #get l_por_x, l_por_y from line1
                         lx=float(x[19])
                         ly=float(x[20])
@@ -55,8 +55,8 @@ for i in range(1,37):
                         ly2=float(x2[20])
                         #calculate distance bettween the 2 points
                         #distance=math.sqrt(((lx-lx2)**2)+((ly-ly2)**2))
-                        dist_x=lx-lx2
-                        dist_y=ly-ly2
+                        dist_x=lx2-lx
+                        dist_y=ly2-ly
                         #calculate the distamce between interpolations
                         #dist_btw_inter=distance/(extra_lines+1)
                         dist_btw_inter_x = dist_x / (extra_lines + 1)
@@ -72,7 +72,8 @@ for i in range(1,37):
                             x[21] = str(new_lx)
                             x[22] = str(new_ly)
                             #recreate the new liine
-                            new_line = str(int(x[0]) + sampling_period*(z+1)) + ","
+
+                            new_line = str(int(x[0]) + (((int(x2[0]) - int(x[0])) / (extra_lines + 1)) * (z + 1))) + ","
                             for h in range(1, len(x) - 1):
                                 new_line = new_line + str(x[h]) + ","
                             new_line = new_line + x[len(x) - 1]

@@ -49,7 +49,7 @@ for i in range(1,37):
             mean_rate_dict.update({file_name :mean_rate })
             var=0
             for k in range(0, len(period_list)):
-                temp=mean_rate-(1/(period_list[i]*(10**-6)))
+                temp=mean_rate-(1/(period_list[k]*(10**-6)))
                 var = var + (temp**2)
 
             st=float("{0:.2f}".format(math.sqrt(var/len(period_list))))
@@ -86,17 +86,6 @@ for i in range(0,len(all_keys)):
         if all_keys[i] not in files_d:
             files_d.append(all_keys[i])
 
-    '''
-    if values_mean[i] not in mean_d:
-        mean_d.update({values_mean[i]:1})
-    else:
-        mean_d.update({values_mean[i]: mean_d.get(values_mean[i])+1})
-    if  values_std[i] not in std_d:
-        std_d.update({values_std[i]:1})
-    else:
-        std_d.update({values_std[i]: std_d.get(values_std[i])+1})
-
-    '''
 
 print(len(files_d))
 print("Files to remove due to mean:"+str(cm))
@@ -110,53 +99,15 @@ for i in range(0,len(all_keys)):
         copyfile(src, dst)
 
 '''
-temp=list(mean_d.keys())
-all_keys_m=[]
-for key in sorted(mean_d):
-    all_keys_m.append(key)
-vm=[]
-for i in range(0,len(all_keys_m)):
-    vm.append(mean_d.get(all_keys_m[i]))
-
-temp=list(std_d.keys())
-all_keys_s=[]
-for key in sorted(std_d):
-    all_keys_s.append(key)
-vs=[]
-for i in range(0,len(all_keys_s)):
-    vs.append(std_d.get(all_keys_s[i]))
-
-print("Files to remove due to mean:"+str(cm))
-print("Files to remove due to std:"+str(cs))
-print("Files to remove due to mean and std:"+str(cms))
-
-
-plt.plot(all_keys_m ,vm, 'ro', markersize=1 )
-plt.ylabel('Frequency')
-plt.xlabel('Mean Rate')
-plt.show()
-
-
-plt.plot(all_keys_s ,vs, 'ro',markersize=1)
-plt.ylabel('Frequency')
-plt.xlabel('Std')
-plt.show()
-'''
-'''
-temp=[]
-temp2=[]
-for i in range(0,len(all_keys)):
-    val=mean_rate_dict.get(all_keys[i])
-    if val>=55:
-        temp.append(mean_rate_dict.get(all_keys[i]))
-        temp2.append(all_keys[i])
-
-plt.plot(temp2, temp, 'ro', markersize=4)
-plt.ylabel('Standard Deviation')
+plt.plot(all_keys ,values_mean, 'ro', markersize=1 )
+plt.ylabel('Mean Rate')
 plt.xlabel('File')
 plt.show()
+
+
+plt.plot(all_keys ,values_std, 'ro',markersize=1)
+plt.ylabel('Std')
+plt.xlabel('File')
+plt.show()
+#end
 '''
-
-
-#exit()
-#print(mean_rate_dict)
