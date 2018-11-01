@@ -132,8 +132,84 @@ do_feature_extr <- function() {
   }
   write.csv(features, row.names = F, file = 'data/features.csv')
 }
-#fix <- read.csv("data/aggregated/fixations.P01_10879.txt")
-#sac <- read.csv("data/aggregated/saccades.P10_2725_interpolated.txt")
+
+do_feature_extr2 <- function() {
+  fixations <- dir('data/aggregated', pattern='fixations.*')
+  saccades <- dir('data/aggregated', pattern='saccades.*')
+  
+  events <- c()
+  tids <- c()
+  pids <- c()
+  for(i in 1:length(fixations)) {
+    fix <- read.csv(paste("data/aggregated/", fixations[i], sep='/'))
+    events <- c(events, classify(fix))
+    
+    p <- str_match(fixations[i], "fixations.P([0-9]*)_([0-9]*)")
+    pids <- c(pids, p[[2]])
+    tids <- c(tids, p[[3]])
+  }
+  featurematr <- as.data.frame(dfm(events, ngrams=1:3))
+  featurematr$pids <- pids
+  featurematr$tids <- tids
+  
+  write.csv(featurematr, row.names = F, file = 'data/features.tm.csv')
+  
+  return(featurematr)
+}
+
+
+classify <- function(fixations) {
+  events <- c()
+  dists <- c()
+  fixation_classes <- list(
+    list(label="150", min=0, max=150),
+    list(label="300", min=150, max=300),
+    list(label="450", min=300, max=450),
+    list(label="600", min=450, max=600),
+    list(label="M", min=600, max=Inf)
+  )
+  saccade_classes <- list(
+    list(label="35", min=0, max=35),
+    list(label="70", min=35, max=70),
+    list(label="105", min=70, max=105),
+    list(label="140", min=105, max=140),
+    list(label="M", min=140, max=Inf)
+  )
+  
+  for(i in 1:nrow(fixations)) {
+    fixation <- fixations[i,]
+    labelf <- NULL
+    for(j in 1:length(fixation_classes)) {
+      cl <- fixation_classes[[j]]
+      if (fixation$dur > cl$min*1000 && fixation$dur <= cl$max*1000) {
+        labelf <- cl$label
+        break
+      }
+    }
+    events <- c(events, paste("FIX", labelf, sep = ""))
+    
+    if (i < nrow(fixations)) {
+      fixation2 <- fixations[(i+1), ]
+      lenx <- fixation2$x - fixation$x
+      leny <- fixation2$y - fixation$y
+      distance <- sqrt(lenx**2 + leny**2)
+      labels <- NULL
+      dists <- c(dists, distance)
+      for(j in 1:length(saccade_classes)) {
+        cl <- saccade_classes[[j]]
+        if (distance > cl$min && distance <= cl$max) {
+          labels <- cl$label
+          break
+        }
+      }
+      events <- c(events, paste("SAC", labels, sep = ""))
+
+    }
+  }
+  return(paste(events, collapse = ' '))
+}
+#fix <- read.csv("data/aggregated/fixations.P01_10879_interpolated.txt")
+#sac <- read.csv("data/aggregated/saccades.P01_10879_interpolated.txt")
 #regressive_saccades(sac)
 #res <- extract_features(fix, sac)
 #View(res)

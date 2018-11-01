@@ -20,7 +20,7 @@ link.ratings <- function(ratings, features) {
 ratings <- link.ratings(ratings, features)
 
 # Remove pid and tid features as they should not be used for prediction
-feat_drop <- c("pid","tid")
+feat_drop <- c("pid","tid", "document")
 features <- features[ , !(names(features) %in% feat_drop)]
 
 # Combine features and ONE rating into a single dataframe
@@ -45,7 +45,7 @@ predict.rf <- function(model, features, parameters) {
 
 tune.rf <- function(parameters) {
   find_hyperparameters(
-    features.train, ratings.train$comprehension, 
+    features.train, ratings.train$complexity, 
     train.rf, predict.rf, adjusted_r2,
     parameters
   )
@@ -75,6 +75,17 @@ mse <- function(actual, predicted) {
 model <- randomForest(
   rating ~ ., 
   data = data.frame(features.train, rating = ratings.train$interest), 
-  mtry=12, nodesize=4, ntree = 500
+  ntree = 500
 )
 predicted <- predict(model, data.frame(features.test))
+
+
+
+baseline <- function() {
+  for(rating in c("interest", "complexity", "comprehension")) {
+    m <- rep(mean(ratings.train[, rating]), length(ratings.test[, rating]))
+    rating.mse <- mse(ratings.test[, rating], m)
+    rating.ar2 <- adjusted_r2(ratings.test[,rating], m, 1)
+    print(paste(rating, rating.mse, rating.ar2))
+  }
+}
