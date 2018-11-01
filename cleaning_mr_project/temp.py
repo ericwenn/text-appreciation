@@ -1,6 +1,6 @@
 
 #####
-#WE DO NOT USE THIS CODE IS JUST FOR SOME CHECK UPS I MADE
+#WE DO NOT USE THIS CODE IS JUST FOR SOME CHECK UPS I needed to do
 ###
 
 from pathlib import Path

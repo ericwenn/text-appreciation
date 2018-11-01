@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 import math
-folder_name="data_after_fixation_map/"
+folder_name="data_after_removing_outliers/"
 doc_id=["322","2725","3775","3819","4094","4504","4584","4701","5938","6046","6366","6474","7784","9977","10879","11143","11299","13165"]
 mean_rate_dict={}
 sampling_period=16666
@@ -15,7 +15,7 @@ for i in range(1,37):
             file_name = 'P0' + str(i) + '_' + str(doc_id[j])
         else:
             file_name = 'P' + str(i) + '_'+ str(doc_id[j])
-        path=folder_name+file_name+".txt"
+        path=folder_name+file_name+"_remove_outliers.txt"
         file=Path(path)
         #check if the file exist
         if file.exists():
