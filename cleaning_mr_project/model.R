@@ -2,7 +2,8 @@ library(ggplot2)
 library(randomForest)
 source('x-val.R')
 
-set.seed(1)
+# set.seed(1)
+
 # load feature and ratings
 features <- read.csv('data/features.csv')
 ratings <- read.csv('data/ratings.csv') # normalized ratings 1-7
@@ -21,13 +22,16 @@ ratings <- link.ratings(ratings, features)
 
 # Remove pid and tid features as they should not be used for prediction
 feat_drop <- c("pid","tid", "document")
+#feat_drop <- c(feat_drop, "RT.NF", "FD.sd")
+#feat_drop <- c(feat_drop, "RT.NF")
+
 features <- features[ , !(names(features) %in% feat_drop)]
 
 # Combine features and ONE rating into a single dataframe
 combined <- data.frame(features, rating = ratings$interest)
 
 # Split the data into training and test set
-train.index <- sample(1:nrow(combined), 300)
+train.index <- sample(1:nrow(combined), 320)
 features.train <- features[train.index,]
 features.test <- features[-train.index,]
 
@@ -35,11 +39,11 @@ ratings.train <- ratings[train.index,]
 ratings.test <- ratings[-train.index,]
 
 
-train.rf <- function(features, labels, parameters) {
-  model <- randomForest(rating ~ ., data = data.frame(features, rating = labels), mtry=parameters$mtry, nodesize=parameters$nodesize, ntree = 500)
+train.rf <- function(features, labels) {
+  model <- randomForest(rating ~ ., data = data.frame(features, rating = labels), ntree = 500)
   return(model)
 }
-predict.rf <- function(model, features, parameters) {
+predict.rf <- function(model, features) {
   predict(model, data.frame(features))
 }
 
@@ -71,15 +75,21 @@ mse <- function(actual, predicted) {
 # interest 9/6
 # complexity 9/2
 # comprehension 12/4
+rr <- "interest"
 
-model <- randomForest(
-  rating ~ ., 
-  data = data.frame(features.train, rating = ratings.train$interest), 
-  ntree = 500
-)
-predicted <- predict(model, data.frame(features.test))
+m <- k_fold(features, ratings[, rr], train.rf, predict.rf, adjusted_r2, k = 10)
+print(mean(m))
+#model <- randomForest(
+#  rating ~ ., 
+#  data = data.frame(features.train, rating = ratings.train[,rr]), 
+#  ntree = 500,
+#  mtry=9, nodesize=2
+#)
+#predicted <- predict(model, data.frame(features.test))
 
-
+#print(mse(ratings.test[,rr], predicted))
+#print(adjusted_r2(ratings.test[,rr], predicted))
+#varImpPlot(model)
 
 baseline <- function() {
   for(rating in c("interest", "complexity", "comprehension")) {

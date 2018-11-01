@@ -1,6 +1,6 @@
 library(moments)
 library(stringr)
-
+library(quanteda)
 extract_features <- function(fixations, saccades) {
   parameter.vector <- list()
   parameter.vector <- list(parameter.vector)
@@ -148,9 +148,9 @@ do_feature_extr2 <- function() {
     pids <- c(pids, p[[2]])
     tids <- c(tids, p[[3]])
   }
-  featurematr <- as.data.frame(dfm(events, ngrams=1:3))
-  featurematr$pids <- pids
-  featurematr$tids <- tids
+  featurematr <- as.data.frame(dfm(events, ngrams=1))
+  featurematr$pid <- pids
+  featurematr$tid <- tids
   
   write.csv(featurematr, row.names = F, file = 'data/features.tm.csv')
   
@@ -208,7 +208,8 @@ classify <- function(fixations) {
   }
   return(paste(events, collapse = ' '))
 }
-#fix <- read.csv("data/aggregated/fixations.P01_10879_interpolated.txt")
+fix <- read.csv("data/aggregated/fixations.P01_10879_interpolated.txt")
+print(classify(fix))
 #sac <- read.csv("data/aggregated/saccades.P01_10879_interpolated.txt")
 #regressive_saccades(sac)
 #res <- extract_features(fix, sac)

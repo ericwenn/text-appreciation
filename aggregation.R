@@ -5,7 +5,14 @@ sample_size <- function(df) {
 dispersion <- function(df) {
   return(100)
 }
+
+smooth <- function(df, window_size) {
+  df$x <- filter(df$x, filter=rep(1/window_size, window_size))
+  df$y <- filter(df$y, filter=rep(1/window_size, window_size))
+  return(df)
+}
 aggregate <- function(df) {
+  df <- smooth(df, 5)
   fixations <- emov.idt(df$time, df$x, df$y, dispersion(df), sample_size(df))
   pupils <- c()
   for (i in 1:(nrow(fixations))) {

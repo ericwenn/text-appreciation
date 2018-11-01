@@ -12,7 +12,7 @@ load_ratings <- function() {
 do_aggregation <- function() {
    aggregate_files(
      "cleaning_mr_project/eye-tracking_data_interpolated",
-    "data/aggregated",
+    "data/aggregated2",
     headerMap = list(
       time="Time", 
       x="L.POR.X..px.",
