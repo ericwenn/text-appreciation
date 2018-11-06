@@ -89,11 +89,11 @@ regressive_saccades <- function(saccades) {#here why -20? isnt the axis origin o
   filt <- spacing.y < -20 | (abs(spacing.y) < 10 & spacing.x < 0)
   
   filtered <- saccades[filt,]
-  return(filtered)
   g <- ggplot(filtered, aes(x=startx, y=-starty, xend=endx, yend=-endy))
   g <- g + geom_segment(data = saccades)
   g <- g + geom_segment(color='red')
   print(g)
+  return(filtered)
 }
 
 ydist_saccade <- function(saccades) {
@@ -113,13 +113,13 @@ saccade_velocity <- function(saccades) {
 }
 
 do_feature_extr <- function() {
-  fixations <- dir('data/aggregated', pattern='fixations.*')
-  saccades <- dir('data/aggregated', pattern='saccades.*')
+  fixations <- dir('data/aggregated2', pattern='fixations.*')
+  saccades <- dir('data/aggregated2', pattern='saccades.*')
   
   features <- data.frame()
   for(i in 1:length(fixations)) {
-    fix <- read.csv(paste("data/aggregated/", fixations[i], sep='/'))
-    sac <- read.csv(paste("data/aggregated/", saccades[i], sep='/'))
+    fix <- read.csv(paste("data/aggregated2/", fixations[i], sep='/'))
+    sac <- read.csv(paste("data/aggregated2/", saccades[i], sep='/'))
     feat <- extract_features(fix, sac)
     
     p <- str_match(fixations[i], "fixations.P([0-9]*)_([0-9]*)")
@@ -134,14 +134,14 @@ do_feature_extr <- function() {
 }
 
 do_feature_extr2 <- function() {
-  fixations <- dir('data/aggregated', pattern='fixations.*')
-  saccades <- dir('data/aggregated', pattern='saccades.*')
+  fixations <- dir('data/aggregated2', pattern='fixations.*')
+  saccades <- dir('data/aggregated2', pattern='saccades.*')
   
   events <- c()
   tids <- c()
   pids <- c()
   for(i in 1:length(fixations)) {
-    fix <- read.csv(paste("data/aggregated/", fixations[i], sep='/'))
+    fix <- read.csv(paste("data/aggregated2/", fixations[i], sep='/'))
     events <- c(events, classify(fix))
     
     p <- str_match(fixations[i], "fixations.P([0-9]*)_([0-9]*)")
@@ -208,9 +208,9 @@ classify <- function(fixations) {
   }
   return(paste(events, collapse = ' '))
 }
-fix <- read.csv("data/aggregated/fixations.P01_10879_interpolated.txt")
-print(classify(fix))
-#sac <- read.csv("data/aggregated/saccades.P01_10879_interpolated.txt")
-#regressive_saccades(sac)
+#fix <- read.csv("data/aggregated/fixations.P01_10879_interpolated.txt")
+#print(classify(fix))
+sac <- read.csv("data/aggregated2/saccades.P01_10879_interpolated.txt")
+regressive_saccades(sac)
 #res <- extract_features(fix, sac)
 #View(res)

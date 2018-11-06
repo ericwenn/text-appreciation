@@ -1,4 +1,4 @@
-k_fold <- function(features, labels, fn.train, fn.predict, fn.metric, k = 10) {
+k_fold <- function(features, labels, fn.train, fn.predict, fn.metric, k = 10, metrics.merge = c) {
   metrics <- c()
   
   # Randomly rearrange the features and labels
@@ -21,7 +21,7 @@ k_fold <- function(features, labels, fn.train, fn.predict, fn.metric, k = 10) {
     labels.validation.predicted <- fn.predict(model, features.validation)
     
     metric <- fn.metric(labels.validation, labels.validation.predicted)
-    metrics <- c(metrics, metric)
+    metrics <- metrics.merge(metrics, metric)
   }
   
   return(metrics)

@@ -3,7 +3,7 @@ sample_size <- function(df) {
   return(6)
 }
 dispersion <- function(df) {
-  return(100)
+  return(35)
 }
 
 smooth <- function(df, window_size) {
@@ -71,6 +71,12 @@ aggregate_files <- function(rawDir, aggregatedDir, pattern = NULL, headerMap) {
     d <- aggregate(df)
     fixations <- d$fixations
     saccades <- d$saccades
+    
+    
+    #g <- ggplot(fixations) + geom_point(aes(x = x, y = -y, size = dur))
+    #g <- g + geom_segment(data=saccades, aes(x=startx, y=-starty, xend=endx, yend=-endy))
+    #print(g)
+    #return()
     
     path.fixation <- paste(aggregatedDir, paste("fixations", file, sep="."), sep="/")
     path.saccade <- paste(aggregatedDir, paste("saccades", file, sep="."), sep="/")
